@@ -22,6 +22,7 @@ def die(k, msg='Application closed by user.', status=0):
 	print(msg)
 	exit(status)
 
+
 class Camera:
 	def __init__(self, x, y, z, thetaX, thetaY, thetaZ):
 		self.x, self.y, self.z = x, y, z
