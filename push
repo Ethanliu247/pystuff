@@ -1,5 +1,11 @@
+#!/bin/bash
+if [[ -z "${@// }" ]]; then
+	MSG='updated files'
+else
+	MSG="$*"
+fi
 git add -v **
 git ls-files -d |xargs git rm -r
-git commit -m "updated files"
+git commit -m "$MSG"
 git push
 git status
