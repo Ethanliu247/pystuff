@@ -18,6 +18,10 @@ canvas.pack()
 object_buffer = []
 objects = []
 
+def die(k, msg='Application closed by user.', status=0):
+	print(msg)
+	exit(status)
+
 class Camera:
 	def __init__(self, x, y, z, thetaX, thetaY, thetaZ):
 		self.x, self.y, self.z = x, y, z
@@ -211,6 +215,8 @@ root.bind('<KeyPress-d>', lambda e: camera.movex(-1))
 root.bind('<KeyPress-q>', lambda e: camera.movey(-1))
 root.bind('<KeyPress-e>', lambda e: camera.movey(1))
 
+root.bind('<Escape>', die, "Closed by user")
+
 # Rotate
 root.bind('<KeyPress-i>', lambda e: camera.rotx(-1))
 root.bind('<KeyPress-j>', lambda e: camera.rotz(1))
@@ -277,9 +283,9 @@ def run():
 		for obj in objects:
 			obj.update()
 #		root.update_idletasks()
-#		root.update()
+		root.update()
 #		canvas.update_idletasks()
-#		canvas.update()
+		canvas.update()
 		root.after(0, run)
 	except TclError:
 		print('Application closed by user, or an unknown error occurred.')
