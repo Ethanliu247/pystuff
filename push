@@ -1,0 +1,5 @@
+git add -v **
+git ls-files -d |xargs git rm -r
+git commit -m "updated files"
+git push
+git status
