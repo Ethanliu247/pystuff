@@ -3,6 +3,9 @@
 		added trees
 		added basic camera clipping so the inside of the house looks more normal
 		simplified controls
+		+added shebang line
+		+disabled line drawing
+		+changed to meet tkinter standards
 	class.py
 		cleaned up the huge parentheses mess
 		slightly optimized parts of the code
