@@ -1,0 +1,11 @@
+Changes:
+
+	convert.py (3D engine)
+		added trees
+		added basic camera clipping so the inside of the house looks more normal
+		simplified controls
+	class.py (?)
+		cleaned up the huge parentheses mess
+		slightly optimized parts of the code
+	changelog.txt (changelog)
+		added changelog
