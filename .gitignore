@@ -1,9 +1,4 @@
 **/.*.swp
-**/*.aux
-**/*.log
-**/*-*.*
-**/*.pre
 **/push
 .DS_Store
 .idea/
-.swp
