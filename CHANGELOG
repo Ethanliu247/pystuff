@@ -1,11 +1,27 @@
 11-07-2016:
 	3D\ Engine/main.py (3D engine)
-		+ movement relative to camera
-		+ stuffed it in another folder
+		renamed from convert.py
+		movement relative to camera
+		stuffed it in another folder
 	question
-		+ answered question
+		answered question
 	.gitignore
-		+ added ".idea/" to relieve pycharm annoyance
+		added ".idea/" to relieve pycharm annoyance
 	TODO
-		+ added TODO list
-		+ added 17 items
+		added TODO list
+		added 17 items
+11-05-2016:
+	convert.py (3D engine)
+		added trees
+		added basic camera clipping so the inside of the house looks more normal
+		simplified controls
+		+added shebang line
+		+disabled line drawing
+		+changed to meet tkinter standards
+	class.py
+		cleaned up the huge parentheses mess
+		slightly optimized parts of the code
+	CHANGELOG
+		added changelog
+	.gitignore (git ignore)
+		added .DS_Store to reduce annoyance
