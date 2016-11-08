@@ -1,0 +1,399 @@
+'''
+Quick Language (see changelog for version) by Yovel Key-Cohen
+
+Now featuring a changelog!
+'''
+
+import os
+from tkinter import *
+import socket
+import sys
+import pickle
+import threading
+import random
+from time import sleep, time
+import subprocess
+
+embedding = False
+
+# Lexer
+def words(string):
+    word = ''
+    state = 0
+    tokens = []
+    escape = False
+    func = 0
+    ftemp = []
+    for char in string:
+        if char is ' ' and state is 0:
+            tokens.append(word)
+            word = ''
+        elif char is '|':
+            if escape == True: escape = False
+            elif escape == False: escape = True
+        elif char is ' ' and state is 1 or func is 1:
+            word += ' '
+        elif char is '<' and escape == False:
+            if word != ' ' and word != '' and func != True: tokens.append(word)
+            elif func == True: ftemp.append(word)
+            if state == 0: word = ''
+            state = 1
+        elif char is '>' and escape == False:
+            if state == 1: state = 0
+            if func != True:
+                tokens.append(word)
+            elif func == True:
+                ftemp.append(word)
+            word = ''
+        elif char == '{' and escape == False:
+            func = 1
+            tokens.append(word)
+            word = ''
+        elif char == '}' and escape == False:
+            func = 0
+            tokens.append(ftemp)
+            word= ''
+        elif char is '\n' and state is 0 and func is 0:
+            tokens.append(word)
+            word = ''
+        elif char is '\r' and state is 0:
+            tokens.append(word)
+            word = ''
+        elif char is ';' and state is 0:
+            tokens.append(word)
+            word = ''
+        else:
+            word += char
+    tokens.append('<EOF_TOKEN>')
+    return tokens
+
+# Helps me out in parser
+def nextTok(l='',it=''):
+    return l[it+1]
+
+# Globals initialization for parsing
+s = ''
+stack = list()
+heap = dict()
+working_dir = os.path.expanduser('~')+'/Desktop/'
+root = ''
+funcs = dict()
+
+# Parser
+def parse(codelist, embed=False):
+    def ql(code):
+        global embedding
+        try:
+            coded = words(code)
+            if embedding: 
+                return parse(coded, embed=True)
+            elif not embedding:
+                parse(coded)
+        except KeyboardInterrupt:
+            sys.exit(0)
+    i = -1
+    global stack
+    global working_dir
+    global heap
+    global root
+    nextToken = lambda: nextTok(codelist, i)
+    nextnextToken = lambda: nextTok(l=codelist, it=i+2)
+    nnnToken = lambda: nextTok(l=codelist, it=i+3)
+    skip = False
+    dubSkip = False
+    for token in codelist:
+        i += 1
+        if skip:
+            if not dubSkip: skip = False
+            else:
+                skip = True
+                dubSkip = False
+            continue
+        
+        # Print output
+        elif token == 'out':
+            skip = True
+            if not embed: print(nextToken(), end='')
+            try:
+                if nextnextToken() == 'n':
+                    print()
+            except:
+                pass
+            if embed: return nextToken()
+
+        # File IO
+        elif token == 'file':
+            skip = True
+            f = open(working_dir+nextToken(), 'w+')
+            f.write('')
+            f.close()
+            del f
+        elif token == 'scrap':
+            skip = True
+            os.remove(working_dir+nextToken())
+        elif token == 'overwrite':
+            skip = True
+            dubSkip = True
+            f = open(working_dir+nextToken(), 'w+')
+            f.write(nextnextToken())
+            f.write('\n')
+            f.close()
+        elif token == 'write':
+            skip = True
+            dubSkip = True
+            f = open(working_dir+nextToken(), 'a+')
+            f.write(nextnextToken())
+            f.write('\n')
+            f.close()
+        elif token == 'read':
+            skip = True
+            f = open(working_dir+nextToken(), 'r+')
+            if not embed: print(f.read())
+            if embed: return f.read()
+        elif token == 'working':
+            skip = True
+            working_dir = nextToken()
+        elif token == 'getworking':
+            if not embed: print(working_dir)
+            if embed: return working_dir
+
+        # GUI Implementation (Work in progress)
+        elif token == 'window':
+            skip = True
+            root = Tk()
+            try:
+                root.title(nextToken())
+                root.geometry(nextnextToken())
+            except:
+                print('Missing one or more parameters in statement')
+        elif token == 'configBG':
+            root.config(bg=nextToken())
+
+                #  ???
+
+        # Functions! Yay!
+        elif token == 'func':
+            global funcs
+            funcs[nextToken()] = nextnextToken()
+        elif token == 'call':
+            try:
+                ql(funcs[nextToken()])
+            except KeyError:
+                print('Function does not exist')
+        elif token == 'listfuncs':
+            print(funcs.keys())
+
+        # Variables and pseudo-memory management
+        elif token == 'stack':
+            skip = True
+            stack.append(nextToken())
+        elif token == 'stackin':
+            skip = True
+            stack.append(input(nextToken()))
+        elif token == 'stackpop':
+            sp = stack.pop()
+            if not embed and nextToken() != 'void': print(sp, end='')
+            if embed and nextToken() != 'void': return sp
+            try:
+                if nextToken() == 'n':
+                    print()
+            except:
+                pass
+            if embed: return sp
+        elif token == 'heapadd':
+            skip = True
+            try: heap[int(nextToken())] = ''
+            except: print('Integer address expected')
+        elif token == 'heapmod':
+            skip = True
+            dubSkip = True
+            if int(nextToken()) in heap.keys(): heap[int(nextToken())] = nextnextToken()
+        elif token == 'heaptype':
+            skip = True
+            if nextnextToken() == 'int':
+                heap[int(nextToken())] = int(heap[int(nextToken())])
+            if nextnextToken() == 'str':
+                heap[int(nextToken())] = str(heap[int(nextToken())])
+            if nextnextToken() == 'float':
+                heap[int(nextToken())] = float(heap[int(nextToken())])
+            if nextnextToken() == 'list':
+                heap[int(nextToken())] = list(heap[int(nextToken())])
+        elif token == 'heapdel':
+            skip = True
+            del heap[int(nextToken())]
+        elif token == 'heapget':
+            if not embed: print(heap[int(nextToken())], end='')
+            try:
+                if nextnextToken() == 'n':
+                    print()
+            except:
+                pass
+            if embed: return heap[int(nextToken())]
+        elif token == 'heapin':
+            skip = True
+            dubSkip = True
+            heap[int(nextToken())] = input(nextnextToken()+'\n')
+        elif token == 'heapinc':
+            heap[int(nextToken())]+=int(nextnextToken())
+
+        # EOF and spacing            
+        elif token == '\n':
+            pass
+        elif token == ';':
+            continue
+        elif token == '<EOF_TOKEN>':
+            break
+
+        # Mathematical Operators
+        elif token == 'add':
+            try:
+                if not embed: print(int(nextToken()) + int(nextnextToken()), end='')
+                if embed: return int(nextToken()) + int(nextnextToken())
+            except TypeError:
+                print('Integers expected')
+            except ValueError:
+                print('Integers expected')
+        elif token == 'multiply':
+            try:
+                if not embed: print(int(nextToken()) * int(nextnextToken()), end='')
+                if embed: return int(nextToken()) * int(nextnextToken())
+            except TypeError:
+                print('Integers expected')
+            except ValueError:
+                print('Integers expected')
+        elif token == 'subtract':
+            try:
+                if not embed: print(int(nextToken()) - int(nextnextToken()), end='')
+                if embed: return int(nextToken()) - int(nextnextToken())
+            except TypeError:
+                print('Integers expected')
+            except ValueError:
+                print('Integers expected')
+        elif token == 'divide':
+            try:
+                if not embed: print(int(nextToken()) / int(nextnextToken()), end='')
+                if embed: return int(nextToken()) / int(nextnextToken())
+            except TypeError:
+                print('Integers expected')
+            except ValueError:
+                print('Integers expected')
+        elif token == 'mod':
+            try:
+                if not embed: print(int(nextToken()) % int(nextnextToken()), end='')
+                if embed: return int(nextToken()) % int(nextnextToken())
+            except TypeError:
+                print('Integers expected')
+            except ValueError:
+                print('Integers expected')
+        elif token == 'power':
+            try:
+                if not embed: print(int(nextToken()) ** int(nextnextToken()), end='')
+                if embed: return int(nextToken()) ** int(nextnextToken())
+            except TypeError:
+                print('Integers expected')
+            except ValueError:
+                print('Integers expected')
+
+        # Executing other scripts
+        # It looks a bit messy because of the closure but it gets the job done
+        elif token == 'execute':
+            def openrun(file):
+                try:
+                    if file[-3:] == '.ql' or file[-4:] == '.qcl':
+                        if file[0] != '/':
+                            f = open(working_dir+file, 'r')
+                        elif file[0] == '/':
+                            f = open(file, 'r')
+                        if embed: return ql(f.read())
+                        elif not embed: ql(f.read())
+                    else:
+                        print('Invalid file extension')
+                except KeyboardInterrupt:
+                    sys.exit(0)
+            if embed: return openrun(nextToken())
+        
+        # Nice to quit the program, right?
+        # From this I learned that none of this works without <>
+        # Example: to exit you must do 'exit <>'
+        # This is solved within the shell
+        elif token == 'exit':
+            sys.exit(0)
+        elif token == 'close':
+            return 0
+
+        # Networking? Not entirely sure if this works...
+        elif token == 'scrape':
+            host = nextToken()
+            port = int(nextnextToken())
+            s = socket.socket()
+            s.connect((host,port))
+            threading.Thread(target=lambda: print(s.recv(2048)))
+
+        # Waiting
+        elif token == 'wait':
+            sleep(float(nextToken()))
+        # If's
+        elif token == 'if':
+            try:
+                if eval(nextToken()):
+                    if embed: return ql(nextnextToken())
+                    elif not embed: ql(nextnextToken())
+                    elseOn = False
+                elif not eval(nextToken()):
+                    elseOn = True
+            except:
+                print('An error occurred during comparison')
+        elif token == 'else':
+                if elseOn:
+                    if embed: return ql(nextToken())
+                    elif not embed: ql(nextToken())
+                    elseOn = False
+                elif elseOn != True:
+                    print('Found else without if')
+
+        # Python Integration
+        elif token == 'py':
+            try: exec(nextToken())
+            except: print('An error occurred while trying to use Python')
+        elif token == 'pyexec':
+            void = False
+            if nextnextToken() == 'void': void = True
+            if nextToken()[0] != '/' and not void:
+                if embed: return subprocess.call('python3 '+working_dir+nextToken(), shell=True)
+                if not embed: print(subprocess.call('python3 '+working_dir+nextToken(), shell=True))
+            elif nextToken()[0] == '/' and not void:
+                if embed: return subprocess.call('python3 '+nextToken(), shell=True)
+                if not embed: print(subprocess.call('python3 '+nextToken(), shell=True))
+            elif void:
+                subprocess.call(nextToken(), shell=True)
+            void = False
+        elif token == 'pyglobals.set':
+            globals()[nextToken()] = nextnextToken()
+        elif token == 'pyglobals.get':
+            if embed: return globals()[nextToken()]
+            if not embed: print(globals()[nextToken()]) 
+        elif token == 'pyglobals':
+            if embed: return globals()
+            if not embed: print(globals().keys())
+        elif token == 'pylocate':
+            if embed: return id(eval(nextToken()))
+            if not embed: print(id(eval(nextToken())))
+
+        # Loops
+        elif token == 'loop':
+            for i in range(int(nextToken())):
+                ql(nextnextToken)
+
+# Run Quick Language from within Python     
+def ql(code):
+    global embedding
+    coded = words(code)
+    return parse(coded, embed=embedding)
+
+# Run Quick Language from a file
+def openrun(file):
+    if file[-3:] == '.ql' or file[-4:] == '.qcl':
+        f = open(file, 'r')
+        ql(f.read())
+    else:
+        print('Invalid file extension')
