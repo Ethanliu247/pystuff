@@ -1,5 +1,7 @@
 11-07-2016:
 	convert.py (3D engine)
 		+ movement relative to camera
-	question (question)
+	question
 		+ answered question
+	.gitignore
+		+ added ".idea/" to relieve pycharm annoyance
