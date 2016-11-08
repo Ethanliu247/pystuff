@@ -1,15 +1,5 @@
-11-05-2016:
+11-07-2016:
 	convert.py (3D engine)
-		added trees
-		added basic camera clipping so the inside of the house looks more normal
-		simplified controls
-		+added shebang line
-		+disabled line drawing
-		+changed to meet tkinter standards
-	class.py
-		cleaned up the huge parentheses mess
-		slightly optimized parts of the code
-	CHANGELOG
-		added changelog
-	.gitignore (git ignore)
-		added .DS_Store to reduce annoyance
+		+ movement relative to camera
+	question (question)
+		+ answered question
