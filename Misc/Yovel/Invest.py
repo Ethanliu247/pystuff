@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from tkinter import *
 from time import sleep
 import random

@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from random import choice as randchoice
 
 print('Hello and welcome to my insult generator. Just hit return and then have fun!!!')
