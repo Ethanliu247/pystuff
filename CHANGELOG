@@ -1,7 +1,11 @@
 11-07-2016:
-	convert.py (3D engine)
+	3D\ Engine/main.py (3D engine)
 		+ movement relative to camera
+		+ stuffed it in another folder
 	question
 		+ answered question
 	.gitignore
 		+ added ".idea/" to relieve pycharm annoyance
+	TODO
+		+ added TODO list
+		+ added 17 items
