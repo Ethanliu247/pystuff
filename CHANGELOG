@@ -1,5 +1,5 @@
 11-08-2016:
-	Misc/The\ Good\ Stuff/
+	Misc/Yovel/
 		added MANY old projects, some of which are actually pretty cool
 			most noteable added projects:
 				neurons.py
@@ -7,6 +7,8 @@
 				QL Builds
 				2D Minecraft
 			I may add some more in the future
+	Wavegame/wavewave.py
+		Added my wave game thing (halfdone)
 11-07-2016:
 	3D\ Engine/main.py (3D engine)
 		renamed from convert.py
@@ -24,9 +26,9 @@
 		added trees
 		added basic camera clipping so the inside of the house looks more normal
 		simplified controls
-		+added shebang line
-		+disabled line drawing
-		+changed to meet tkinter standards
+		added shebang line
+		disabled line drawing
+		changed to meet tkinter standards
 	class.py
 		cleaned up the huge parentheses mess
 		slightly optimized parts of the code
