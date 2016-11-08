@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 '''
 Python Script
 Client Version ALPHA 2.1.0
