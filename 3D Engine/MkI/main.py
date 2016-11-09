@@ -13,12 +13,11 @@ root.geometry(str(height+100)+'x'+str(width)+'+0+0')
 root.focus()
 
 canvas = Canvas(root, width=width, height=height, bg='white')
-info = Label(root, text='2D Projection of 3D Points', fg='blue')
+info = Label(root, text='House Simulator 2016', fg='blue')
 info.pack()
 canvas.pack()
 object_buffer = []
 objects = []
-
 class Camera:
     def __init__(self, x, y, z, thetaX, thetaY, thetaZ):
         self.x, self.y, self.z = x, y, z
@@ -330,6 +329,8 @@ knob = CustomShape([[13, -49, 110], [15, -49, 110], [15, -51, 110], [13, -51, 11
                    [[12,13,14,15], [8,9,10,11], [12,8,9,13], [9,13,14,10], [10,14,15,11], [11,15,8,9], [0,4,5,1], [1,5,6,2], [2,6,7,3], [3,7,4,0]],
                    color='gold')
 trees = []
+floor = canvas.create_rectangle(0, height + 100, 500, height, fill='green')
+canvas.pack()
 for i in range(20):
     max = 500
     min = -500
