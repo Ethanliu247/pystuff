@@ -1,7 +1,7 @@
 To-do List
 	1. Make objects unable to be seen through other objects
 	2. Add a more streamlined way of making objects rather than simply shape-classes
-	3. With that new system, add basic object interaction with the player
+	3. With that new system, add basic object interaction with the player (press f to interact)
 	4. Make a floor to stand on (previous attempts have failed disastrously)
 	5. Collision detection :(
 	6. Maybe some arms? A way to make objects follow the player

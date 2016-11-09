@@ -6,9 +6,12 @@
 				GUI Chat Room
 				QL Builds
 				2D Minecraft
-			I may add some more in the future - Note: some of them disappeared
+			I may add some more in the future - Note: some of them disappeared?
 	Wavegame/wavewave.py
 		Added my wave game thing (halfdone)
+		added simple obstacles
+	.gitignore
+		added ".swp" because it appeared somehow and I didn't want git status yelling
 11-07-2016:
 	3D\ Engine/main.py (3D engine)
 		renamed from convert.py

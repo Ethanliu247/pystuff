@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import tkinter as tk
 import random
-import rndcolor
 import time
 import math
 p = input("Enter number of players (1-4, default 1): ")
@@ -13,11 +12,36 @@ if p == "":
 GI = 0.5 #important value; determines lots of things like spood
 window = tk.Tk()
 window.title("WaveWave.exe")
-c = tk.Canvas(window, width=400, height=300, bg="#dddddd")
+c = tk.Canvas(window, width=400, height=300, bg="#ffffff")
 k = False
 waves = []
 keys = ("space", "Delete", "Escape", "KP_Add")
 colors = (("#0088ff", "#88aaff"), ("#ff0044", "#ff00aa"), ("#448800", "#44aa00"), ("#bbbb00", "#ffff00"))
+obstacles = []
+
+class Obstacle:
+    def __init__(self):
+        obstacles.append(self)
+        self.radius = 10
+        self.color = 'black'
+        self.x = 400
+        self.y = random.randint(50, 250)
+        self.render = c.create_oval(self.x-self.radius, self.y-self.radius,
+                                    self.x+self.radius, self.y+self.radius,
+                                    fill=self.color)
+    def update(self):
+        for wave in waves:
+            if wave.w in c.find_overlapping(*c.bbox(self.render)):
+                raise Exception('A player died and I don\'t know what you want to happen so this error was thrown!')
+                return
+        if self.x >= -self.radius:
+            self.x -= 2
+        else:
+            obstacles.remove(self)
+        c.delete(self.render)
+        self.render = c.create_oval(self.x-self.radius, self.y-self.radius,
+                                    self.x+self.radius, self.y+self.radius,
+                                    fill=self.color)
 
 class EdgeManager:
     def __init__(self):
@@ -126,6 +150,10 @@ for i in waves:
     c.bind_all("<KeyPress-" + i.key + ">", i.flipu)
     c.bind("<KeyPress-q>", i.kill)
 def tick(e=None):
+    if random.randint(0, 100)== 50:
+        Obstacle()
+    for obs in obstacles:
+        obs.update()
     allded = True
     for i in waves:
         i.update()
@@ -143,5 +171,5 @@ def gameover(e=None):
         if s == 1:
             print("The highscore this round was", str(max(waves, key=lambda x: x.score))+".")
 
-window.after(0, tick)
+tick()
 window.mainloop()
