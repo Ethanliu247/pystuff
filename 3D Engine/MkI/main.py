@@ -340,33 +340,33 @@ for i in range(20):
     while z >= -150 and z <= 150:
         z = randint(min, max)
     trees.append(Tree(x, 0, z))
-
+temp = object_buffer
+decrease = 0.1
 def mainloop():
     global camera
-    temp = object_buffer
-    decrease = 0.1
-    while True:
-        try:
-            if camera.xspeed >= 1:
-                camera.xspeed -= decrease
-            if camera.yspeed >= 1:
-                camera.yspeed -= decrease
-            if camera.zspeed >= 1:
-                camera.zspeed -= decrease
-            if camera.xrot >= 1:
-                camera.xrot -= decrease
-            if camera.yrot >= 1:
-                camera.yrot -= decrease
-            for obj in temp:
-                canvas.delete(obj)
-                object_buffer.remove(obj)
-            for obj in objects:
-                obj.update()
-            root.update_idletasks()
-            root.update()
-            canvas.update_idletasks()
-            canvas.update()
-        except TclError:
-            print('Application closed by user, or an unknown error occurred.')
-            exit()
-mainloop()
+    try:
+        if camera.xspeed >= 1:
+            camera.xspeed -= decrease
+        if camera.yspeed >= 1:
+            camera.yspeed -= decrease
+        if camera.zspeed >= 1:
+            camera.zspeed -= decrease
+        if camera.xrot >= 1:
+            camera.xrot -= decrease
+        if camera.yrot >= 1:
+            camera.yrot -= decrease
+        for obj in temp:
+            canvas.delete(obj)
+            object_buffer.remove(obj)
+        for obj in objects:
+            obj.update()
+#        root.update_idletasks()
+        root.update()
+#        canvas.update_idletasks()
+        canvas.update()
+        root.after(0, mainloop)
+    except TclError:
+        print('Application closed by user, or an unknown error occurred.')
+        exit()
+root.after(0, mainloop)
+root.mainloop()
