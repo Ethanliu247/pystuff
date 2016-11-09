@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from math import sin, cos, radians, degrees
 from tkinter import *
 from time import sleep

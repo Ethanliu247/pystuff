@@ -1,22 +1,33 @@
 #!/usr/bin/python3
+
+GI = 1.5 # important value; determines lots of things like spood
+keys = ("space", "Delete", "Escape", "KP_Add") # controls
+colors = (("#0088ff", "#88aaff"), ("#ff0044", "#ff00aa"), ("#448800", "#44aa00"), ("#bbbb00", "#ffff00")) # you can guess
+
 import tkinter as tk
 import random
 import time
 import math
-p = input("Enter number of players (1-4, default 1): ")
-while not (p in ("", "1", "2", "3", "4")):
-    p = input("Invalid. Enter number of players: ")
-if p == "":
-    p = 1
-
-GI = 0.5 #important value; determines lots of things like spood
+from sys import argv
+p = 1
+for i in range(0, len(argv)):
+	if argv[i] in ('-h', '--help'):
+		print("wavewave: a simple wave game")
+		print("switches:")
+		print(" -p|--players [num]: set number of players (default 1, up to 4)")
+		print(" -h|--help: display this help & exit")
+		exit()
+	elif argv[i] in ('-p', '--players'):
+		try:
+			p = min(4, max(1, int(argv[i+1])))
+		except:
+			print("wavewave.py: error: please specify a valid number for switch -p")
+			exit()
 window = tk.Tk()
 window.title("WaveWave.exe")
 c = tk.Canvas(window, width=400, height=300, bg="#ffffff")
 k = False
 waves = []
-keys = ("space", "Delete", "Escape", "KP_Add")
-colors = (("#0088ff", "#88aaff"), ("#ff0044", "#ff00aa"), ("#448800", "#44aa00"), ("#bbbb00", "#ffff00"))
 obstacles = []
 
 class Obstacle:
@@ -32,8 +43,7 @@ class Obstacle:
     def update(self):
         for wave in waves:
             if wave.w in c.find_overlapping(*c.bbox(self.render)):
-                raise Exception('A player died and I don\'t know what you want to happen so this error was thrown!')
-                return
+                wave.dead = True
         if self.x >= -self.radius:
             self.x -= 2
         else:
@@ -84,7 +94,7 @@ class Wave:
         self.nodes.append(TNode(50, self.y, k))
     def kill(self):
         self.ded = True
-        print("You just KYSed, retard!")
+        print("You just killed everyone, retard!")
     def flipu(self, self1):
         if self.ded:
             return
@@ -145,7 +155,6 @@ def doNothing(self):
     pass
 c.pack()
 for i in waves:
-    print(i)
     c.bind_all("<KeyRelease-" + i.key + ">", i.flipd)
     c.bind_all("<KeyPress-" + i.key + ">", i.flipu)
     c.bind("<KeyPress-q>", i.kill)
