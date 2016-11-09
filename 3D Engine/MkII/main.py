@@ -16,8 +16,9 @@ canvas = Canvas(root, width=width, height=height, bg='white')
 info = Label(root, text='House Simulator 2016', fg='blue')
 info.pack()
 canvas.pack()
-object_buffer = []
+global_point_buf = []
 objects = []
+
 class Camera:
     def __init__(self, x, y, z, thetaX, thetaY, thetaZ):
         self.x, self.y, self.z = x, y, z
@@ -148,14 +149,16 @@ def map_2d(mapped_xyz, scale=1):
 def convert(cam, x, y, z, scale=1):
     return map_2d(map_rotation((x, y, z), cam), scale)
 
-class Cube:
-    def __init__(self, x, y, z, scale=1, color='green', debug=False):
+class Voxel:
+    def __init__(self, x, y, z, scale=0.1, color='green', debug=False):
         self.debug = debug
         self.color = color
         objects.append(self)
         self.scale = scale
-        self.points = [(100+x, 100+y, 100+z), (-100+x, 100+y, 100+z), (-100+x, -100+y, 100+z), (100+x, -100+y, 100+z),
-                            (100+x, 100+y, -100+z), (-100+x, 100+y, -100+z), (-100+x, -100+y, -100+z), (100+x, -100+y, -100+z)]
+        self.points = [(100*scale+x, 100*scale+y, 100*scale+z), (-100*scale+x, 100*scale+y, 100*scale+z),
+                        (-100*scale+x, -100*scale+y, 100*scale+z), (100*scale+x, -100*scale+y, 100*scale+z),
+                        (100*scale+x, 100*scale+y, -100*scale+z), (-100*scale+x, 100*scale+y, -100*scale+z),
+                        (-100*scale+x, -100*scale+y, -100*scale+z), (100*scale+x, -100*scale+y, -100*scale+z)]
         self.lines = []
         for i in range(len(self.points)):
             try:
@@ -200,78 +203,6 @@ class Cube:
                                                     *convert(camera, *line[1], scale=self.scale),
                                                     fill='black'))
 
-class CustomShape:
-    def __init__(self, points, lines, faces, color='grey', scale=1, debug=False):
-        self.debug = debug
-        objects.append(self)
-        self.points = points
-        self.lines = []
-        self.faces = []
-        self.scale = scale
-        self.doline = True
-        self.doface = True
-        try:
-            for line in lines:
-                temp = []
-                for point in line:
-                    temp.append(self.points[point])
-                self.lines.append(temp)
-        except:
-            self.doline = False
-        try:
-            for face in faces:
-                temp = []
-                for point in face:
-                    temp.append(self.points[point])
-                self.faces.append(temp)
-            self.color = color
-        except:
-            self.doface = False
-    def update(self):
-        n = 0
-        if self.debug:
-            for point in self.points:
-                coords = convert(camera, *point, scale=self.scale)
-                object_buffer.append(canvas.create_rectangle(coords[0], coords[1], coords[0]+2, coords[1]+2, outline='', fill='black'))
-                object_buffer.append(canvas.create_text(coords[0], coords[1]+20, text=str(n)))
-                n += 1
-        if self.doface:
-            for face in self.faces:
-                poly_coords = []
-                for point in face:
-                    poly_coords.append(convert(camera, *point, scale=self.scale*0.99))
-                object_buffer.append(canvas.create_polygon(*poly_coords, fill=self.color))
-        if self.doline:
-            for line in self.lines:
-                #print(line)
-                object_buffer.append(canvas.create_line(*convert(camera, *line[0], scale=self.scale),
-                                                        *convert(camera, *line[1], scale=self.scale)))
-
-class Tree:
-    def __init__(self, x, y, z):
-        self.trunk = CustomShape([
-            [-20+x, -100+y, -20+z], [20+x, -100+y, -20+z], [20+x, -100+y, 20+z], [-20+x, -100+y, 20+z],
-            [-20 + x, 75 + y, 20 + z], [20 + x, 75 + y, -20 + z], [20+x, 75+y, 20+z], [-20+x, 75+y, -20+z]
-        ],[
-            [0,1], [1,2], [2,3], [3,0],
-            [6,5], [5,7], [7,4], [4,6],
-            [3,4], [1,5], [2,6], [0,7]
-        ],[
-            [0,1,3,2], [6,5,7,4], [0,1,5,4], [1,2,6,5], [2,3,7,6], [3,0,7,4]
-        ], color='saddle brown')
-        self.leaves = CustomShape([
-            [-20 + x, 75 + y, -20 + z], [20 + x, 75 + y, -20 + z], [20 + x, 75 + y, 20 + z], [-20 + x, 75 + y, 20 + z],
-            [0+x,10+y,-65+z], [65+x, 10+y, 0+z], [0+x, 10+y, 65+z], [-65+x, 10+y, 0+z]
-        ],[
-            [0,1], [1,2], [2,3], [3,0],
-            [0,4], [4,1],
-            [1,5], [5,2],
-            [2,6], [6,3],
-            [3,7], [7,0]
-        ],[
-            [0, 1, 4], [1, 2, 5], [2, 3, 6], [3, 0, 7]
-        ], color='green2')
-
 camera = Camera(0, -25, 400, 0, 0, 0)  # x is >, y is ^, and z is behind you
 def old_controls():
     # Move
@@ -297,38 +228,6 @@ def new_controls():
     root.bind('<KeyPress-e>', lambda e: camera.roty(1))
 new_controls()
 
-#grass = canvas.create_rectangle(0, height/2, width, height, fill='forest green')
-house = Cube(0, 0, 0, color='firebrick')
-roof = CustomShape([[0, 250, 0], [100, 100, 100], [-100, 100, 100], [-100, 100, -100], [100, 100, -100]],
-                      [[0,1], [0,2], [0,3], [0,4], [1,2], [2,3], [3,4], [1,4]],
-                      [[0,1,4], [0,2,3], [0,1,2], [0,3,4]],
-                      color='saddle brown')
-door = CustomShape([[-25, -100, 110], [-25, 0, 100], [-25, 0, 110], [-25, -100, 100], # right side 0 1 2 3
-                    [25, -100, 110], [25, 0, 100],[25, 0, 110], [25, -100, 100], # left side 4 5 6 7
-                    [15, -90, 110], [-15, -10, 110],[15, -10, 110], [-15, -90, 110], # front outline 8 9 10 11
-                    [10, -85, 110], [-10, -65, 110], [10, -65, 110], [-10, -85, 110], # bottom window 12 13 14 15
-                    [10, -35, 110], [-10, -15, 110], [10, -15, 110], [-10, -35, 110]], # top window 16 17 18 19
-                   [[2,1],[1,3],[2,0],[3,0],
-                    [6,4],[5,7],[6,5],[7,4],
-                    [0,4],[1,5],[2,6],[3,7],
-                    [10,9],[9,11],[10,8],[11,8],
-                    [14,13],[13,15],[14,12],[15,12],
-                    [16,19],[17,18],[18,16],[19,17]],
-                   [[1,2,0,3], [5,6,4,7], [6,2,0,4], [6,5,1,2], [7,3,0,4]],
-                   color='sienna')
-knob = CustomShape([[13, -49, 110], [15, -49, 110], [15, -51, 110], [13, -51, 110],  # 0 1 2 3
-                    [13, -49, 112], [15, -49, 112], [15, -51, 112], [13, -51, 112],  # 4 5 6 7
-                    [11, -47, 112], [17, -47, 112], [17, -53, 112], [11, -53, 112],  # 8 9 10 11
-                    [11, -47, 114], [17, -47, 114], [17, -53, 114], [11, -53, 114]],  # 12 13 14 15
-                   [[0,1], [1,2], [2,3], [3,0],
-                    [8,9], [9,10], [10,11], [11,8],
-                    [0,4], [1,5], [2,6], [3,7],
-                    [4,5], [5,6], [6,7], [7,4],
-                    [8,12], [9,13], [10,14], [11,15],
-                    [12,13], [13,14], [14,15], [15,12]],
-                   [[12,13,14,15], [8,9,10,11], [12,8,9,13], [9,13,14,10], [10,14,15,11], [11,15,8,9], [0,4,5,1], [1,5,6,2], [2,6,7,3], [3,7,4,0]],
-                   color='gold')
-trees = []
 floor = canvas.create_rectangle(0, height/2, 500, height, fill='forest green')
 canvas.pack()
 for i in range(20):
@@ -371,3 +270,4 @@ def mainloop():
         exit()
 root.after(0, mainloop)
 root.mainloop()
+
