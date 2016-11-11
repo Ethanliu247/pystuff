@@ -1,4 +1,4 @@
-ww#!/bin/bash
+#!/bin/bash
 if [[ -z "${@// }" ]]; then
 	MSG='updated files'
 else
