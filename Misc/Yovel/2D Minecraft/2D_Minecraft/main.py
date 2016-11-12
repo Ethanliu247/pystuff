@@ -5,6 +5,7 @@ from random import randint, randrange, choice
 from os import system, listdir, getcwd
 from os.path import expanduser
 from sys import exit
+from platform import system
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import pickle
 import subprocess
@@ -31,7 +32,7 @@ class Music(Thread):
         Thread.__init__(self)
         self.process = None
     def play(self):
-        self.process = subprocess.Popen(['afplay', loc+choice(tracks)+'.mp3'])
+        self.process = subprocess.Popen([('play' if system() == 'Linux' else 'afplay'), loc+choice(tracks)+'.mp3'])
     def playing(self):
         return self.process != None
     def stop(self):
