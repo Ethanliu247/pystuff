@@ -1,3 +1,6 @@
+11-15-2016:
+	.gitignore
+		added "Demos/" because I added some demonstrations of each big iteration of the 3D Engine. I didn't want to have to push all those megabytes (ever), so git ignores it
 11-11-2016:
 	Misc/Yovel/2D\ Minecraft/2D_Minecraft/main.py
 		upped compatability for sound

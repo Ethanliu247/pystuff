@@ -1,9 +1,12 @@
 version = (
-    1.1,
+    1.1.1,
     'ALPHA'
     )
-
 changes = \
+'''
+Solved several bugs with sound and increased system compatability
+'''
+#changes = \
 '''
 Resized everything from 32x32 to 16x16
 Added three sound tracks (taken from Minecraft)
